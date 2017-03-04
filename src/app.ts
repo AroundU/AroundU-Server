@@ -6,6 +6,7 @@ import * as logger from 'morgan';
 import * as cookieParser from 'cookie-parser';
 import * as bodyParser from 'body-parser';
 import * as cors from 'cors';
+import * as database from "./model/database";
 import { Index } from './route/index';
 
 export class Application {
@@ -17,15 +18,14 @@ export class Application {
     }
 
     constructor() {
+        database.initialize("ds051605.mlab.com:51605/lh_cuhacking", process.env.USERNAME_DB, process.env.PASSWORD_DB);
         this.app = express();
-
         this.config();
 
         this.routes();
     }
 
     private config() {
-
         this.app.set("views", path.join(__dirname, "../views"));
         this.app.set("view engine", "pug");
 
