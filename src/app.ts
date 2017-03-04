@@ -11,10 +11,13 @@ import * as database from "./model/database";
 import { Index } from './route/index';
 import { AuthenticationRoute } from './route/auth';
 import { UserRoute } from './route/user';
+import { File } from './route/file';
 
 export class Application {
 
     public app: express.Application;
+    private upload: multer.Instance;
+    private storage: multer.StorageEngine;
 
     public static bootstrap(): Application {
         return new Application();
@@ -23,6 +26,10 @@ export class Application {
     constructor() {
         database.initialize("ds051605.mlab.com:51605/lh_cuhacking", process.env.USERNAME_DB, process.env.PASSWORD_DB);
         this.app = express();
+
+        this.storage = multer.diskStorage({});
+        this.upload = multer({ storage: this.storage });
+
         this.config();
 
         this.routes();
@@ -36,7 +43,7 @@ export class Application {
         this.app.use(bodyParser.json());
         this.app.use(bodyParser.urlencoded({ extended: true }));
         this.app.use(cookieParser());
-        //this.app.use(this.upload.single('file'));
+        this.app.use(this.upload.single('file'));
         this.app.use(session({
             secret: 'lolcodebecausecatsaregood',
             resave: true,
@@ -56,9 +63,11 @@ export class Application {
         let index: Index = new Index();
         let auth: AuthenticationRoute = new AuthenticationRoute();
         let user: UserRoute = new UserRoute();
+        let file: File = new File();
         this.app.use("/", index.router);
         this.app.use("/auth", auth.router);
         this.app.use("/user", user.router);
+        this.app.use("/file", file.router);
 
         this.app.use((req: express.Request, res: express.Response, next: express.NextFunction) => {
             let err = new Error('Not Found');

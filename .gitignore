@@ -33,6 +33,7 @@ build
 .tscache
 .idea/
 .vscode/
+ecosystem.config.js
 
 # Optional npm cache directory
 .npm
