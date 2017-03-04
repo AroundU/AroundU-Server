@@ -29,6 +29,10 @@ build/Release
 # Dependency directories
 node_modules
 jspm_packages
+build
+.tscache
+.idea/
+.vscode/
 
 # Optional npm cache directory
 .npm
