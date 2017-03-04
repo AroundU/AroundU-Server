@@ -10,10 +10,13 @@ import * as passport from 'passport';
 import * as bodyParser from 'body-parser';
 import * as cors from 'cors';
 import { Index } from './route/index';
+import { File } from './route/file';
 
 export class Application {
 
     public app: express.Application;
+    private upload: multer.Instance;
+    private storage: multer.StorageEngine;
 
     public static bootstrap(): Application {
         return new Application();
@@ -21,6 +24,8 @@ export class Application {
 
     constructor() {
         this.app = express();
+        this.storage = multer.diskStorage({});
+        this.upload = multer({ storage: this.storage });
 
         this.config();
 
@@ -36,7 +41,7 @@ export class Application {
         this.app.use(bodyParser.json());
         this.app.use(bodyParser.urlencoded({ extended: true }));
         this.app.use(cookieParser());
-        //this.app.use(this.upload.single('file'));
+        this.app.use(this.upload.single('file'));
         this.app.use(session({
             secret: 'lolcodebecausecatsaregood',
             resave: true,
@@ -55,7 +60,9 @@ export class Application {
     public routes() {
 
         let index: Index = new Index();
+        let file: File = new File();
         this.app.use("/", index.router);
+        this.app.use("/file", file.router);
 
         this.app.use((req: express.Request, res: express.Response, next: express.NextFunction) => {
             let err = new Error('Not Found');
