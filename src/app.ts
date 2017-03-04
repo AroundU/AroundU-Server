@@ -11,6 +11,7 @@ import * as database from "./model/database";
 import { Index } from './route/index';
 import { AuthenticationRoute } from './route/auth';
 import { UserRoute } from './route/user';
+import { PostRoute } from './route/post';
 import { File } from './route/file';
 
 export class Application {
@@ -64,10 +65,12 @@ export class Application {
         let auth: AuthenticationRoute = new AuthenticationRoute();
         let user: UserRoute = new UserRoute();
         let file: File = new File();
+        let post: PostRoute = new PostRoute();
         this.app.use("/", index.router);
         this.app.use("/auth", auth.router);
         this.app.use("/user", user.router);
         this.app.use("/file", file.router);
+        this.app.use("/post", post.router);
 
         this.app.use((req: express.Request, res: express.Response, next: express.NextFunction) => {
             let err = new Error('Not Found');
