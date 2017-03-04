@@ -1,5 +1,3 @@
-'use strict';
-
 import * as express from 'express';
 import * as path from 'path';
 import * as logger from 'morgan';
@@ -11,6 +9,8 @@ import * as bodyParser from 'body-parser';
 import * as cors from 'cors';
 import * as database from "./model/database";
 import { Index } from './route/index';
+import { AuthenticationRoute } from './route/auth';
+import { UserRoute } from './route/user';
 
 export class Application {
 
@@ -53,9 +53,12 @@ export class Application {
     }
 
     public routes() {
-
         let index: Index = new Index();
+        let auth: AuthenticationRoute = new AuthenticationRoute();
+        let user: UserRoute = new UserRoute();
         this.app.use("/", index.router);
+        this.app.use("/auth", auth.router);
+        this.app.use("/user", user.router);
 
         this.app.use((req: express.Request, res: express.Response, next: express.NextFunction) => {
             let err = new Error('Not Found');
