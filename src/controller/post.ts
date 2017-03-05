@@ -15,6 +15,13 @@ module Controller {
         post: PostModel;
     }
 
+    interface PostRequest {
+        pageNumber: number;
+        pageSize: number;
+        latitude: number;
+        longitude: number;
+    }
+
     export class PostController {
 
         private static instance: PostController;
