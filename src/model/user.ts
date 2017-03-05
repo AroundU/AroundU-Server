@@ -2,7 +2,7 @@ import * as mongoose from 'mongoose';
 import { CollectionBase } from "./database";
 export let Schema = mongoose.Schema;
 
-export interface Vote {
+export interface Vote extends mongoose.Document {
     post: string;
     time: number;
 }
@@ -14,6 +14,17 @@ export interface UserModel extends mongoose.Document {
     downvoted?: Vote[];
 }
 
+let voteSchema = new Schema({
+    post: {
+        type: String,
+        required: true
+    },
+    time: {
+        type: Number,
+        required: true
+    }
+});
+
 let schema = new Schema({
     username: {
         type: String,
@@ -24,11 +35,11 @@ let schema = new Schema({
         required: true
     },
     upvoted: {
-        type: [Object],
+        type: [voteSchema],
         required: false
     },
     downvoted: {
-        type: [Object],
+        type: [voteSchema],
         required: false
     }
 });

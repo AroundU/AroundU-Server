@@ -1,5 +1,5 @@
 import { PostCollection, PostModel } from "../model/post";
-import { UserCollection, UserModel } from "../model/user";
+import { UserCollection, UserModel, Vote } from "../model/user";
 import { RedisController } from "./redis";
 
 module Controller {
@@ -51,7 +51,7 @@ module Controller {
             return new Promise<PostVotePromise>(async (resolve, reject) => {
                 try {
                     let post: PostModel = await this.postCollection.findById(id);
-                    let time = Math.round((Date.now() - post.timestamp) / 6000);
+                    let time = Math.round((Date.now() - post.timestamp) / (1000 * 60));
                     let key = post._id + "-" + String(time);
                     switch (Number(action)) {
                         case PostAction.UPVOTE:
@@ -60,10 +60,16 @@ module Controller {
                             if (user.upvoted) {
                                 let index = user.upvoted.findIndex(vote => vote.post === post._id);
                                 if (index < 0) {
-                                    user.upvoted.push(post._id);
+                                    user.upvoted.push(<Vote> {
+                                        post: post._id,
+                                        time: Date.now()
+                                    });
                                 }
                             } else {
-                                user.upvoted = [post._id];
+                                user.upvoted = [<Vote> {
+                                    post: post._id,
+                                    time: Date.now()
+                                }];
                             }
                             if (user.downvoted) {
                                 let index = user.downvoted.findIndex(vote => vote.post === post._id);
@@ -90,10 +96,16 @@ module Controller {
                             if (user.downvoted) {
                                 let index = user.downvoted.findIndex(vote => vote.post === post._id);
                                 if (index < 0) {
-                                    user.downvoted.push(post._id);
+                                    user.downvoted.push(<Vote> {
+                                        post: post._id,
+                                        time: Date.now()
+                                    });
                                 }
                             } else {
-                                user.upvoted = [post._id];
+                                user.upvoted = [<Vote> {
+                                    post: post._id,
+                                    time: Date.now()
+                                }];
                             }
                             if (user.upvoted) {
                                 let index = user.upvoted.findIndex(vote => vote.post === post._id);
@@ -134,16 +146,18 @@ module Controller {
 
         public getUpvotes(user: UserModel): Promise<PostModel[]> {
             return new Promise<PostModel[]>(async (resolve, reject) => {
-                let posts: PostModel[] = [];
+                let postIds: string[] = [];
                 for (let vote of user.upvoted) {
-                    try {
-                        let post: PostModel = await this.postCollection.findById(vote.post);
-                        posts.push(post);
-                    } catch (err) {
-                        reject(err);
+                    if (Date.now() - vote.time <= (1000 * 60 * 60 * 24)) {
+                        postIds.push(vote.post);
                     }
                 }
-                resolve(posts);
+                try {
+                    let posts: PostModel[] = await this.postCollection.find({_id: {$in: postIds}});
+                    resolve(posts);
+                } catch (err) {
+                    reject(err);
+                }
             });
         }
 
