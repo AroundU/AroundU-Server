@@ -227,7 +227,7 @@ module Controller {
                         }
                     }
                 }).then(function(posts: PostModel[]) {
-                    let postsScore: any[] = []
+                    let postsScore: any[] = [];
                     for (let post of posts) {
                         let score = 0;
                         let time = Math.round((Date.now() - post.timestamp) / (1000 * 60));
