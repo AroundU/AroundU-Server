@@ -3,14 +3,17 @@ import { CollectionBase } from "./database";
 import { MediaModel } from '../model/media';
 export let Schema = mongoose.Schema;
 
+export interface Position {
+    type: string;
+    coordinates: number[];
+}
+
 export interface PostModel extends mongoose.Document {
-    _id?: string;
     user: string;
     parent?: string;
     media?: MediaModel;
     description?: string;
-    latitude: number;
-    longitude: number;
+    position?: Position;
     timestamp: Date;
     upvotes: number;
     downvotes: number;
@@ -30,13 +33,9 @@ let schema = new Schema({
         type: Object,
         required: false
     },
-    latitude: {
-        type: Number,
-        required: true
-    },
-    longitude: {
-        type: Number,
-        required: true
+    position: {
+        type: Object,
+        required: false
     },
     timestamp: {
         type: Date,
@@ -55,6 +54,8 @@ let schema = new Schema({
         required: false
     }
 });
+
+schema.index({location: "2dsphere"});
 
 export let postSchema = mongoose.model<PostModel>("post", schema, "posts", true);
 

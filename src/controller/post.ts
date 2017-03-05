@@ -28,6 +28,7 @@ module Controller {
 
         private postCollection: PostCollection;
         private userCollection: UserCollection;
+        private maxDistance = 1000;
 
         public static getInstance() {
             if (!PostController.instance) {
@@ -134,6 +135,27 @@ module Controller {
                     }
                 }
                 resolve(posts);
+            });
+        }
+
+        public getNewests(postRequest: PostRequest): Promise<PostModel[]> {
+            return new Promise<PostModel[]>((resolve, reject) => {
+                this.postCollection.findWithLimit({
+                    position: {
+                        $nearSphere: {
+                            $geometry: {
+                                type: "Point",
+                                coordinates: [Number(postRequest.longitude), Number(postRequest.latitude)]
+                            },
+                            $maxDistance: this.maxDistance
+                        }
+                    }
+                }, null, {timestamp: -1}, Number(postRequest.pageNumber * postRequest.pageSize),
+                    Number(postRequest.pageSize)).then(function(posts: PostModel[]) {
+                    resolve(posts);
+                }).catch(function(err) {
+                    reject(err);
+                });
             });
         }
     }

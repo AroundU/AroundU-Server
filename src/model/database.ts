@@ -137,7 +137,7 @@ export class CollectionBase<T extends mongoose.Document> implements IRead<T>, IW
         });
     }
 
-    findWithLimit(cond?: Object, options?: Object, sort?: Object, limit?: number): Promise<T[]> {
+    findWithLimit(cond?: Object, options?: Object, sort?: Object, skip?: number, limit?: number): Promise<T[]> {
         return new Promise<T[]>((resolve, reject) => {
             this._model.find(cond, options, (err: any, res: T[]) => {
 
@@ -146,7 +146,7 @@ export class CollectionBase<T extends mongoose.Document> implements IRead<T>, IW
                 } else {
                     resolve(res);
                 }
-            }).limit(limit).sort(sort);
+            }).sort(sort).skip(skip).limit(limit);
         });
     }
 

@@ -3,7 +3,7 @@ import * as fs from 'fs';
 import { AWSController } from '../controller/aws';
 import { MediaController } from '../controller/media';
 import { PostController } from '../controller/post';
-import { PostCollection } from '../model/post';
+import { PostCollection, PostModel } from '../model/post';
 import { HttpStatus } from '../model/http_status';
 
 module Route {
@@ -20,6 +20,7 @@ module Route {
             this.router.post("/", this.create);
             this.router.post("/:id/comment", this.createComment);
             this.router.post("/:id/vote", this.vote);
+            this.router.get("/newest/:longitude/:latitude/:pageNumber/:pageSize", this.getNewests);
         }
 
         private async create(req: express.Request, res: express.Response) {
@@ -50,8 +51,10 @@ module Route {
                         user: req.user._id,
                         media: media ? media : null,
                         description: req.body["description"],
-                        latitude: req.body["latitude"],
-                        longitude: req.body["longitude"],
+                        position: {
+                            type: "Point",
+                            coordinates: [Number(req.body["longitude"]), Number(req.body["latitude"])]
+                        },
                         timestamp: req.body["timestamp"],
                         upvotes: 0,
                         downvotes: 0,
@@ -94,8 +97,6 @@ module Route {
                         parent: req.params["id"],
                         media: media ? media : null,
                         description: req.body["description"],
-                        latitude: req.body["latitude"],
-                        longitude: req.body["longitude"],
                         timestamp: req.body["timestamp"],
                         upvotes: 0,
                         downvotes: 0,
@@ -132,7 +133,28 @@ module Route {
                 });
             }
         }
+
+        private getNewests(req: express.Request, res: express.Response) {
+            if (!req.params["pageNumber"] || !req.params["pageSize"] || !req.params["latitude"]
+                || !req.params["longitude"]) {
+                res.json({success: false, msg: "Please enter all required information."});
+            } else {
+                PostController.getInstance().getNewests({
+                    pageNumber: req.params["pageNumber"],
+                    pageSize: req.params["pageSize"],
+                    latitude: req.params["latitude"],
+                    longitude: req.params["longitude"]
+                }).then(function(posts: PostModel[]) {
+                    res.json({success: true, posts: posts});
+                }).catch(function(err) {
+                    res.json({success: false, err: err});
+                });
+            }
+        }
     }
 }
 
 export = Route;
+
+// 45.384917
+// -75.697128
