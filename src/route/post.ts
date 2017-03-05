@@ -58,10 +58,7 @@ module Route {
                         downvotes: 0,
                         comments: []
                     });
-                    res.json({
-                        success: true, post: await PostController.getInstance().getById(post._id),
-                        msg: "Successfully created post"
-                    });
+                    res.json({ success: true, post: post, msg: "Successfully created post" });
                 } catch (err) {
                     res.status(HttpStatus.Internal_Server_Error).json({ success: false, err: err, msg: null });
                 }
