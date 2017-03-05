@@ -1,9 +1,12 @@
 import * as mongoose from 'mongoose';
 import { CollectionBase } from "./database";
+import { MediaModel } from '../model/media';
 export let Schema = mongoose.Schema;
 
 export interface PostModel extends mongoose.Document {
     _id?: number;
+    parent?: string;
+    media?: MediaModel;
     description?: string;
     latitude: number;
     longitude: number;
@@ -14,6 +17,14 @@ export interface PostModel extends mongoose.Document {
 }
 
 let schema = new Schema({
+    parent: {
+        type: String,
+        required: false
+    },
+    media: {
+        type: Object,
+        required: false
+    },
     latitude: {
         type: Number,
         required: true

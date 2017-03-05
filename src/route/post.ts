@@ -1,4 +1,7 @@
 import * as express from 'express';
+import * as fs from 'fs';
+import { AWSController } from '../controller/aws';
+import { MediaController } from '../controller/media';
 import { PostController } from '../controller/post';
 import { PostCollection, PostModel } from '../model/post';
 import { HttpStatus } from '../model/http_status';
@@ -18,20 +21,40 @@ module Route {
             //this.router.post("/:id/upvote", this.upvote);
         }
 
-        private create(req: express.Request, res: express.Response) {
+        private async create(req: express.Request, res: express.Response) {
             if (!req.body["latitude"] || !req.body["longitude"] || !req.body["timestamp"]) {
-                res.json({success: false, msg: "Please enter all required information."});
+                res.json({ success: false, msg: "Please enter all required information." });
             } else {
-                let post: PostModel = {
-                    description: req.body["description"],
-                    latitude: req.body["latitude"],
-                    longitude: req.body["longitude"],
-                    timestamp: req.body["timestamp"],
-                    upvotes: 0,
-                    downvotes: 0,
-                    comments: []
-                };
-                PostController.getInstance().create(post);
+                let media = null;
+                if (req.file) {
+                    let data = fs.createReadStream(req.file.path);
+                    try {
+                        let url = await AWSController.getInstance().sendData("imgages/" + req.file.filename, data);
+                        media = await MediaController.getInstance().create({
+                            mimetype: req.file.mimetype,
+                            name: req.file.filename,
+                            size: req.file.size,
+                            url: url
+                        });
+                    } catch (err) {
+                        res.status(HttpStatus.Internal_Server_Error).json({ success: false, err: err, msg: null });
+                    }
+                }
+                try {
+                    let post = await PostController.getInstance().create({
+                        media: media ? media : null,
+                        description: req.body["description"],
+                        latitude: req.body["latitude"],
+                        longitude: req.body["longitude"],
+                        timestamp: req.body["timestamp"],
+                        upvotes: 0,
+                        downvotes: 0,
+                        comments: []
+                    });
+                    res.json({ success: true, post: post, msg: "Successfully created post" });
+                } catch (err) {
+                    res.status(HttpStatus.Internal_Server_Error).json({ success: false, err: err, msg: null });
+                }
             }
         }
 
