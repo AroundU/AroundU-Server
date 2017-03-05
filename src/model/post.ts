@@ -34,6 +34,10 @@ let schema = new Schema({
         type: Schema.Types.ObjectId,
         ref: 'media'
     },
+    description: {
+        type: String,
+        required: false
+    },
     position: {
         type: {
             type: String,
