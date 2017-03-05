@@ -51,6 +51,7 @@ module Route {
                         });
                     } catch (err) {
                         res.status(HttpStatus.Internal_Server_Error).json({ success: false, err: err, msg: null });
+                        return;
                     }
                 }
                 try {
