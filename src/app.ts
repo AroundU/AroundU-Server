@@ -79,6 +79,7 @@ export class Application {
 
         this.app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
             res.status(err.status || 404);
+            console.log(err);
             res.send({
                 message: err.message,
                 error: {}
