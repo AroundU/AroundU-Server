@@ -125,7 +125,7 @@ module Controller {
         }
 
         public getById(_id: string) {
-            return this.postCollection.findById(_id);
+            return this.postCollection.findByIdAndPopulate(_id);
         }
 
         public update(post: PostModel) {

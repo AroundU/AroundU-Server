@@ -3,7 +3,6 @@ import { CollectionBase } from "./database";
 export let Schema = mongoose.Schema;
 
 export interface UserModel extends mongoose.Document {
-    _id?: string;
     username: string;
     password: string;
     upvoted?: string[];

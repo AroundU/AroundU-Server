@@ -3,7 +3,8 @@ import * as fs from 'fs';
 import { AWSController } from '../controller/aws';
 import { MediaController } from '../controller/media';
 import { PostController } from '../controller/post';
-import { PostCollection } from '../model/post';
+import { PostCollection, PostModel } from '../model/post';
+import { MediaModel } from '../model/media';
 import { HttpStatus } from '../model/http_status';
 
 module Route {
@@ -30,12 +31,12 @@ module Route {
             if (!req.body["latitude"] || !req.body["longitude"] || !req.body["timestamp"]) {
                 res.json({ success: false, msg: "Please enter all required information." });
             } else {
-                let media = null;
+                let media: MediaModel = null;
                 if (req.file) {
                     let data = fs.createReadStream(req.file.path);
                     try {
                         let url = await AWSController.getInstance().sendData("images/" + req.file.filename, data);
-                        media = await MediaController.getInstance().create({
+                        media = await MediaController.getInstance().create(<MediaModel>{
                             mimetype: req.file.mimetype,
                             name: req.file.filename,
                             size: req.file.size,
@@ -46,9 +47,9 @@ module Route {
                     }
                 }
                 try {
-                    let post = await PostController.getInstance().create({
+                    let post = await PostController.getInstance().create(<PostModel>{
                         user: req.user._id,
-                        media: media ? media : null,
+                        media: media ? media._id : null,
                         description: req.body["description"],
                         latitude: req.body["latitude"],
                         longitude: req.body["longitude"],
@@ -57,7 +58,10 @@ module Route {
                         downvotes: 0,
                         comments: []
                     });
-                    res.json({ success: true, post: post, msg: "Successfully created post" });
+                    res.json({
+                        success: true, post: await PostController.getInstance().getById(post._id),
+                        msg: "Successfully created post"
+                    });
                 } catch (err) {
                     res.status(HttpStatus.Internal_Server_Error).json({ success: false, err: err, msg: null });
                 }
@@ -72,12 +76,12 @@ module Route {
             if (!req.body["latitude"] || !req.body["longitude"] || !req.body["timestamp"]) {
                 res.json({ success: false, msg: "Please enter all required information." });
             } else {
-                let media = null;
+                let media: MediaModel = null;
                 if (req.file) {
                     let data = fs.createReadStream(req.file.path);
                     try {
                         let url = await AWSController.getInstance().sendData("images/" + req.file.filename, data);
-                        media = await MediaController.getInstance().create({
+                        media = await MediaController.getInstance().create(<MediaModel>{
                             mimetype: req.file.mimetype,
                             name: req.file.filename,
                             size: req.file.size,
@@ -89,10 +93,10 @@ module Route {
                 }
                 try {
                     let id = req.params["id"];
-                    let post = await PostController.getInstance().create({
+                    let post = await PostController.getInstance().create(<PostModel>{
                         user: req.user._id,
                         parent: req.params["id"],
-                        media: media ? media : null,
+                        media: media ? media._id : null,
                         description: req.body["description"],
                         latitude: req.body["latitude"],
                         longitude: req.body["longitude"],
@@ -105,7 +109,7 @@ module Route {
                     if (parent.comments) {
                         parent.comments.push(post);
                     } else {
-                        parent.comments = [ post ];
+                        parent.comments = [post];
                     }
                     await PostController.getInstance().update(parent);
                     res.json({ success: true, post: post, msg: "Successfully created comment" });
@@ -117,19 +121,19 @@ module Route {
 
         private vote(req: express.Request, res: express.Response) {
             if (!req.params["id"] || !req.body["action"]) {
-                res.status(HttpStatus.Bad_Request).json({success: false, msg: "Please enter an id"});
+                res.status(HttpStatus.Bad_Request).json({ success: false, msg: "Please enter an id" });
             } else {
                 PostController.getInstance().vote(req.params["id"], req.body["action"], req.user)
-                    .then(function(postVotePromise: any) {
-                    res.json({
-                        success: true,
-                        user: postVotePromise.user,
-                        post: postVotePromise.post,
-                        msg: "Successfully voted on post!"
+                    .then(function (postVotePromise: any) {
+                        res.json({
+                            success: true,
+                            user: postVotePromise.user,
+                            post: postVotePromise.post,
+                            msg: "Successfully voted on post!"
+                        });
+                    }).catch(function (err) {
+                        res.json({ success: false, err: err, msg: "Failed to vote on post." });
                     });
-                }).catch(function(err) {
-                    res.json({success: false, err: err, msg: "Failed to vote on post."});
-                });
             }
         }
     }
