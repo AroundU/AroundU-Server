@@ -9,6 +9,11 @@ import { HttpStatus } from '../model/http_status';
 
 module Route {
 
+    interface FeedResponse {
+        post: PostModel;
+        upvoted: boolean;
+    }
+
     export class PostRoute {
 
         public router: express.Router;
@@ -149,7 +154,14 @@ module Route {
                     latitude: req.params["latitude"],
                     longitude: req.params["longitude"]
                 }).then(function(posts: PostModel[]) {
-                    res.json({success: true, posts: posts});
+                    let feedResponses: FeedResponse[] = [];
+                    for (let post of posts) {
+                        feedResponses.push({
+                            post: post,
+                            upvoted: (req.user.upvoted.indexOf(post._id, 0) > -1)
+                        });
+                    }
+                    res.json({success: true, posts: feedResponses});
                 }).catch(function(err) {
                     res.json({success: false, err: err});
                 });
@@ -159,6 +171,3 @@ module Route {
 }
 
 export = Route;
-
-// 45.384917
-// -75.697128
