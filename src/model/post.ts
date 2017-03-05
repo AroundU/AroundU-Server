@@ -3,7 +3,7 @@ import { CollectionBase } from "./database";
 export let Schema = mongoose.Schema;
 
 export interface PostModel extends mongoose.Document {
-    _id?: number;
+    _id?: string;
     description?: string;
     latitude: number;
     longitude: number;
@@ -26,6 +26,14 @@ let schema = new Schema({
         type: Date,
         required: true
     },
+    upvotes: {
+        type: Number,
+        required: true
+    },
+    downvotes: {
+        type: Number,
+        required: true
+    }
 });
 
 export let postSchema = mongoose.model<PostModel>("post", schema, "posts", true);

@@ -3,9 +3,11 @@ import { CollectionBase } from "./database";
 export let Schema = mongoose.Schema;
 
 export interface UserModel extends mongoose.Document {
-    _id?: number;
+    _id?: string;
     username: string;
     password: string;
+    upvoted?: string[];
+    downvoted?: string[];
 }
 
 let schema = new Schema({
@@ -16,6 +18,14 @@ let schema = new Schema({
     password: {
         type: String,
         required: true
+    },
+    upvoted: {
+        type: [String],
+        required: false
+    },
+    downvoted: {
+        type: [String],
+        required: false
     }
 });
 

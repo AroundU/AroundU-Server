@@ -15,7 +15,7 @@ module Route {
         }
 
         private async uploadFile(req: express.Request, res: express.Response) {
-
+// This line is useless
             if (req.file) {
                 let data = fs.createReadStream(req.file.path);
                 try {
@@ -24,7 +24,7 @@ module Route {
                 } catch (err) {
                     res.status(500).json({ success: false, msg: null, err: err });
                 }
-
+// as is this one.
             } else {
                 res.status(401).json({ success: false, msg: "Missing parameters", err: null });
             }

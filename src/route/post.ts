@@ -15,14 +15,14 @@ module Route {
             this.postCollection = new PostCollection();
 
             this.router.post("/", this.create);
-            //this.router.post("/:id/upvote", this.upvote);
+            this.router.post("/:id/vote", this.vote);
         }
 
         private create(req: express.Request, res: express.Response) {
             if (!req.body["latitude"] || !req.body["longitude"] || !req.body["timestamp"]) {
                 res.json({success: false, msg: "Please enter all required information."});
             } else {
-                let post: PostModel = {
+                let postData: PostModel = {
                     description: req.body["description"],
                     latitude: req.body["latitude"],
                     longitude: req.body["longitude"],
@@ -31,17 +31,32 @@ module Route {
                     downvotes: 0,
                     comments: []
                 };
-                PostController.getInstance().create(post);
+
+                PostController.getInstance().create(postData).then(function(post: PostModel) {
+                    res.json({success: true, post: post, msg: "Successfully created post!"});
+                }).catch(function(err) {
+                    res.json({success: false, err: err, msg: "Failed to create post."});
+                });
             }
         }
 
-        // private upvote(req: express.Request, res: express.Response) {
-        //     if (!req.params["id"]) {
-        //         res.status(HttpStatus.Bad_Request).json({success: false, msg: "Please enter an id"});
-        //     } else {
-        //         PostController.getInstance().upvote(req.params["id"]);
-        //     }
-        // }
+        private vote(req: express.Request, res: express.Response) {
+            if (!req.params["id"] || !req.body["action"]) {
+                res.status(HttpStatus.Bad_Request).json({success: false, msg: "Please enter an id"});
+            } else {
+                PostController.getInstance().vote(req.params["id"], req.body["action"], req.user)
+                    .then(function(postVotePromise: any) {
+                    res.json({
+                        success: true,
+                        user: postVotePromise.user,
+                        post: postVotePromise.post,
+                        msg: "Successfully voted on post!"
+                    });
+                }).catch(function(err) {
+                    res.json({success: false, err: err, msg: "Failed to vote on post."});
+                });
+            }
+        }
     }
 }
 
