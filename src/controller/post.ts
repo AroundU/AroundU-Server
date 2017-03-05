@@ -29,7 +29,7 @@ module Controller {
 
         private postCollection: PostCollection;
         private userCollection: UserCollection;
-        private maxDistance = 1000;
+        private maxDistance = 10000000000;
 
         public static getInstance() {
             if (!PostController.instance) {
@@ -161,6 +161,27 @@ module Controller {
                         }
                     }
                 }, null, {timestamp: -1}, Number(postRequest.pageNumber * postRequest.pageSize),
+                    Number(postRequest.pageSize)).then(function(posts: PostModel[]) {
+                    resolve(posts);
+                }).catch(function(err) {
+                    reject(err);
+                });
+            });
+        }
+
+        public getNearests(postRequest: PostRequest): Promise<PostModel[]> {
+            return new Promise<PostModel[]>((resolve, reject) => {
+                this.postCollection.findWithLimit({
+                        position: {
+                            $nearSphere: {
+                                $geometry: {
+                                    type: "Point",
+                                    coordinates: [Number(postRequest.longitude), Number(postRequest.latitude)]
+                                },
+                                $maxDistance: this.maxDistance
+                            }
+                        }
+                    }, null, null, Number(postRequest.pageNumber * postRequest.pageSize),
                     Number(postRequest.pageSize)).then(function(posts: PostModel[]) {
                     resolve(posts);
                 }).catch(function(err) {
