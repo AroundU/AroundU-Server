@@ -40,6 +40,8 @@ module Route {
             } else {
                 let media: MediaModel = null;
                 if (req.file) {
+                    console.log(req.file);
+                    console.log(req.body);
                     let data = fs.createReadStream(req.file.path);
                     try {
                         let url = await AWSController.getInstance().sendData("images/" + req.file.filename, data);
