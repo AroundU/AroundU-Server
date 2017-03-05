@@ -17,7 +17,7 @@ module Controller {
 
         private constructor() {
             this.client = createClient('6379', 'lassondehacks.io');
-            this.client.auth('RedisLH2017$');
+            this.client.auth(process.env.REDIS_PASSWORD);
         }
 
         public get(key: string) {
