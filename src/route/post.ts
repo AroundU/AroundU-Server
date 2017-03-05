@@ -35,7 +35,7 @@ module Route {
                 res.status(HttpStatus.Unauthorized).json({ success: false });
                 return;
             }
-            if (!req.body["latitude"] || !req.body["longitude"] || !req.body["timestamp"]) {
+            if (!req.body["latitude"] || !req.body["longitude"]) {
                 res.json({ success: false, msg: "Please enter all required information." });
             } else {
                 let media: MediaModel = null;
@@ -62,7 +62,7 @@ module Route {
                             type: "Point",
                             coordinates: [Number(req.body["longitude"]), Number(req.body["latitude"])]
                         },
-                        timestamp: req.body["timestamp"],
+                        timestamp: Date.now(),
                         upvotes: 0,
                         downvotes: 0,
                         comments: []
@@ -79,7 +79,7 @@ module Route {
                 res.status(HttpStatus.Unauthorized).json({ success: false });
                 return;
             }
-            if (!req.body["latitude"] || !req.body["longitude"] || !req.body["timestamp"]) {
+            if (!req.body["latitude"] || !req.body["longitude"]) {
                 res.json({ success: false, msg: "Please enter all required information." });
             } else {
                 let media: MediaModel = null;
@@ -104,7 +104,7 @@ module Route {
                         parent: req.params["id"],
                         media: media ? media._id : null,
                         description: req.body["description"],
-                        timestamp: req.body["timestamp"],
+                        timestamp: Date.now(),
                         upvotes: 0,
                         downvotes: 0,
                         comments: []

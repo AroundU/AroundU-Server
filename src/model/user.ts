@@ -2,11 +2,16 @@ import * as mongoose from 'mongoose';
 import { CollectionBase } from "./database";
 export let Schema = mongoose.Schema;
 
+export interface Vote {
+    post: string;
+    time: number;
+}
+
 export interface UserModel extends mongoose.Document {
     username: string;
     password: string;
-    upvoted?: string[];
-    downvoted?: string[];
+    upvoted?: Vote[];
+    downvoted?: Vote[];
 }
 
 let schema = new Schema({
@@ -19,11 +24,11 @@ let schema = new Schema({
         required: true
     },
     upvoted: {
-        type: [String],
+        type: [Object],
         required: false
     },
     downvoted: {
-        type: [String],
+        type: [Object],
         required: false
     }
 });

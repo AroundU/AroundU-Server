@@ -137,19 +137,6 @@ export class CollectionBase<T extends mongoose.Document> implements IRead<T>, IW
         });
     }
 
-    findWithLimit(cond?: Object, options?: Object, sort?: Object, skip?: number, limit?: number): Promise<T[]> {
-        return new Promise<T[]>((resolve, reject) => {
-            this._model.find(cond, options, (err: any, res: T[]) => {
-
-                if (err) {
-                    reject(err);
-                } else {
-                    resolve(res);
-                }
-            }).sort(sort).skip(skip).limit(limit).populate('user').populate('media').populate('comments');
-        });
-    }
-
     private toObjectId(_id: string): mongoose.Types.ObjectId {
         return mongoose.Types.ObjectId.createFromHexString(_id);
     }

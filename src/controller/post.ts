@@ -29,7 +29,7 @@ module Controller {
 
         private postCollection: PostCollection;
         private userCollection: UserCollection;
-        private maxDistance = 10000000000;
+        private maxDistance = 1000;
 
         public static getInstance() {
             if (!PostController.instance) {
@@ -51,15 +51,14 @@ module Controller {
             return new Promise<PostVotePromise>(async (resolve, reject) => {
                 try {
                     let post: PostModel = await this.postCollection.findById(id);
-                    let date = new Date();
-                    let time = date.getDate() - post.timestamp.getDate();
+                    let time = Math.round((Date.now() - post.timestamp) / 6000);
                     let key = post._id + "-" + String(time);
                     switch (Number(action)) {
                         case PostAction.UPVOTE:
                             post.upvotes += 1;
                             RedisController.getInstance().increment("upvote:" + key);
                             if (user.upvoted) {
-                                let index = user.upvoted.indexOf(post._id, 0);
+                                let index = user.upvoted.findIndex(vote => vote.post === post._id);
                                 if (index < 0) {
                                     user.upvoted.push(post._id);
                                 }
@@ -67,17 +66,17 @@ module Controller {
                                 user.upvoted = [post._id];
                             }
                             if (user.downvoted) {
-                                let index = user.downvoted.indexOf(post._id, 0);
+                                let index = user.downvoted.findIndex(vote => vote.post === post._id);
                                 if (index > -1) {
                                     post.downvotes -= 1;
                                     user.downvoted.splice(index, 1);
-                                    await RedisController.getInstance().decrement("upvote:" + key);
+                                    await RedisController.getInstance().decrement("downvote:" + key);
                                 }
                             }
                             break;
                         case PostAction.UNUPVOTE:
                             if (user.upvoted) {
-                                let index = user.upvoted.indexOf(post._id, 0);
+                                let index = user.upvoted.findIndex(vote => vote.post === post._id);
                                 if (index > -1) {
                                     post.upvotes -= 1;
                                     user.upvoted.splice(index, 1);
@@ -88,8 +87,8 @@ module Controller {
                         case PostAction.DOWNVOTE:
                             post.downvotes += 1;
                             RedisController.getInstance().increment("downvote:" + key);
-                            if (user.upvoted) {
-                                let index = user.downvoted.indexOf(post._id, 0);
+                            if (user.downvoted) {
+                                let index = user.downvoted.findIndex(vote => vote.post === post._id);
                                 if (index < 0) {
                                     user.downvoted.push(post._id);
                                 }
@@ -97,7 +96,7 @@ module Controller {
                                 user.upvoted = [post._id];
                             }
                             if (user.upvoted) {
-                                let index = user.upvoted.indexOf(post._id, 0);
+                                let index = user.upvoted.findIndex(vote => vote.post === post._id);
                                 if (index > -1) {
                                     post.upvotes -= 1;
                                     user.upvoted.splice(index, 1);
@@ -107,11 +106,11 @@ module Controller {
                             break;
                         case PostAction.UNDOWNVOTE:
                             if (user.downvoted) {
-                                let index = user.downvoted.indexOf(post._id, 0);
+                                let index = user.downvoted.findIndex(vote => vote.post === post._id);
                                 if (index > -1) {
                                     post.downvotes -= 1;
                                     user.downvoted.splice(index, 1);
-                                    await RedisController.getInstance().decrement("upvote:" + key);
+                                    await RedisController.getInstance().decrement("downvote:" + key);
                                 }
                             }
                             break;
@@ -136,9 +135,9 @@ module Controller {
         public getUpvotes(user: UserModel): Promise<PostModel[]> {
             return new Promise<PostModel[]>(async (resolve, reject) => {
                 let posts: PostModel[] = [];
-                for (let postId of user.upvoted) {
+                for (let vote of user.upvoted) {
                     try {
-                        let post: PostModel = await this.postCollection.findById(postId);
+                        let post: PostModel = await this.postCollection.findById(vote.post);
                         posts.push(post);
                     } catch (err) {
                         reject(err);

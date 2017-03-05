@@ -14,7 +14,7 @@ export interface PostModel extends mongoose.Document {
     media?: MediaModel;
     description?: string;
     position?: Position;
-    timestamp: Date;
+    timestamp: number;
     upvotes: number;
     downvotes: number;
     comments: PostModel[];
@@ -45,7 +45,7 @@ let schema = new Schema({
         required: false
     },
     timestamp: {
-        type: Date,
+        type: Number,
         required: true
     },
     upvotes: {
@@ -76,6 +76,20 @@ export class PostCollection extends CollectionBase<PostModel> {
                     resolve(res);
                 }
             }).populate('user').populate('media').populate('comments');
+        });
+    }
+
+    public findWithLimit(cond?: Object, options?: Object, sort?: Object, skip?: number,
+                         limit?: number): Promise<PostModel[]> {
+        return new Promise<PostModel[]>((resolve, reject) => {
+            this._model.find(cond, options, (err: any, res: PostModel[]) => {
+
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(res);
+                }
+            }).sort(sort).skip(skip).limit(limit).populate('user').populate('media').populate('comments');
         });
     }
 }
