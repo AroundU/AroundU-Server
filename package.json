@@ -14,8 +14,9 @@
     "@types/passport": "^0.3.3",
     "@types/passport-local": "^1.0.29",
     "@types/pug": "^2.0.4",
-    "bcrypt-nodejs": "0.0.3",
+    "@types/redis": "^0.12.36",
     "aws-sdk": "^2.22.0",
+    "bcrypt-nodejs": "0.0.3",
     "body-parser": "^1.15.2",
     "cookie-parser": "^1.4.3",
     "cors": "^2.8.1",
@@ -33,6 +34,7 @@
     "passport": "^0.3.2",
     "passport-local": "^1.0.0",
     "pug": "^2.0.0-beta10",
+    "redis": "^2.6.5",
     "serve-favicon": "^2.3.2",
     "tslint": "^4.4.2"
   },

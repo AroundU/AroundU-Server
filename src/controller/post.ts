@@ -1,5 +1,6 @@
 import { PostCollection, PostModel } from "../model/post";
 import { UserCollection, UserModel } from "../model/user";
+import { RedisController } from "./redis";
 
 module Controller {
 
@@ -39,12 +40,16 @@ module Controller {
         }
 
         public vote(id: string, action: PostAction, user: UserModel): Promise<PostVotePromise> {
-            return new Promise<PostVotePromise>(async(resolve, reject) => {
+            return new Promise<PostVotePromise>(async (resolve, reject) => {
                 try {
                     let post: PostModel = await this.postCollection.findById(id);
+                    let date = new Date();
+                    let time = date.getDate() - post.timestamp.getDate();
+                    let key = post._id + "-" + String(time);
                     switch (Number(action)) {
                         case PostAction.UPVOTE:
                             post.upvotes += 1;
+                            RedisController.getInstance().increment("upvote:" + key);
                             if (user.upvoted) {
                                 let index = user.upvoted.indexOf(post._id, 0);
                                 if (index < 0) {
@@ -58,6 +63,7 @@ module Controller {
                                 if (index > -1) {
                                     post.downvotes -= 1;
                                     user.downvoted.splice(index, 1);
+                                    await RedisController.getInstance().decrement("upvote:" + key);
                                 }
                             }
                             break;
@@ -67,11 +73,13 @@ module Controller {
                                 if (index > -1) {
                                     post.upvotes -= 1;
                                     user.upvoted.splice(index, 1);
+                                    await RedisController.getInstance().decrement("upvote:" + key);
                                 }
                             }
                             break;
                         case PostAction.DOWNVOTE:
                             post.downvotes += 1;
+                            RedisController.getInstance().increment("downvote:" + key);
                             if (user.upvoted) {
                                 let index = user.downvoted.indexOf(post._id, 0);
                                 if (index < 0) {
@@ -85,6 +93,7 @@ module Controller {
                                 if (index > -1) {
                                     post.upvotes -= 1;
                                     user.upvoted.splice(index, 1);
+                                    await RedisController.getInstance().decrement("upvote:" + key);
                                 }
                             }
                             break;
@@ -94,13 +103,14 @@ module Controller {
                                 if (index > -1) {
                                     post.downvotes -= 1;
                                     user.downvoted.splice(index, 1);
+                                    await RedisController.getInstance().decrement("upvote:" + key);
                                 }
                             }
                             break;
                     }
                     this.postCollection.update(post._id, post);
                     this.userCollection.update(user._id, user);
-                    resolve({user: user, post: post});
+                    resolve({ user: user, post: post });
                 } catch (err) {
                     reject(err);
                 }
