@@ -18,6 +18,7 @@ module Route {
 
             this.router.post("/register", this.register);
             this.router.get("/upvotes", this.getUpvotes);
+            this.router.get("/posts", this.getPosts);
         }
 
         private register(req: express.Request, res: express.Response) {
@@ -40,6 +41,14 @@ module Route {
 
         private getUpvotes(req: express.Request, res: express.Response) {
             PostController.getInstance().getUpvotes(req.user).then(function(posts: PostModel[]) {
+                res.json({success: true, posts: posts});
+            }).catch(function(err) {
+                res.json({success: false, err: err});
+            });
+        }
+
+        private getPosts(req: express.Request, res: express.Response) {
+            PostController.getInstance().getPosts(req.user._id).then(function(posts: PostModel[]) {
                 res.json({success: true, posts: posts});
             }).catch(function(err) {
                 res.json({success: false, err: err});

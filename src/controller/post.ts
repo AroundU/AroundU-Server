@@ -161,6 +161,17 @@ module Controller {
             });
         }
 
+        public getPosts(userId: string): Promise<PostModel[]> {
+            return new Promise<PostModel[]>(async (resolve, reject) => {
+                try {
+                    let posts: PostModel[] = await this.postCollection.find({user: userId});
+                    resolve(posts);
+                } catch (err) {
+                    reject(err);
+                }
+            });
+        }
+
         public getNewests(postRequest: PostRequest): Promise<PostModel[]> {
             return new Promise<PostModel[]>((resolve, reject) => {
                 this.postCollection.findWithLimit({
