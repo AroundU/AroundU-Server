@@ -23,6 +23,10 @@ module Route {
         }
 
         private async create(req: express.Request, res: express.Response) {
+            if (!req.isAuthenticated()) {
+                res.status(HttpStatus.Unauthorized).json({ success: false });
+                return;
+            }
             if (!req.body["latitude"] || !req.body["longitude"] || !req.body["timestamp"]) {
                 res.json({ success: false, msg: "Please enter all required information." });
             } else {
@@ -43,6 +47,7 @@ module Route {
                 }
                 try {
                     let post = await PostController.getInstance().create({
+                        user: req.user._id,
                         media: media ? media : null,
                         description: req.body["description"],
                         latitude: req.body["latitude"],
@@ -60,6 +65,10 @@ module Route {
         }
 
         private async createComment(req: express.Request, res: express.Response) {
+            if (!req.isAuthenticated()) {
+                res.status(HttpStatus.Unauthorized).json({ success: false });
+                return;
+            }
             if (!req.body["latitude"] || !req.body["longitude"] || !req.body["timestamp"]) {
                 res.json({ success: false, msg: "Please enter all required information." });
             } else {
@@ -81,6 +90,7 @@ module Route {
                 try {
                     let id = req.params["id"];
                     let post = await PostController.getInstance().create({
+                        user: req.user._id,
                         parent: req.params["id"],
                         media: media ? media : null,
                         description: req.body["description"],

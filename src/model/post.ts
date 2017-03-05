@@ -5,6 +5,7 @@ export let Schema = mongoose.Schema;
 
 export interface PostModel extends mongoose.Document {
     _id?: string;
+    user: string;
     parent?: string;
     media?: MediaModel;
     description?: string;
@@ -20,6 +21,10 @@ let schema = new Schema({
     parent: {
         type: String,
         required: false
+    },
+    user: {
+        type: String,
+        required: true
     },
     media: {
         type: Object,
