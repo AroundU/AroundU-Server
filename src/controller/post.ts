@@ -213,6 +213,51 @@ module Controller {
                 });
             });
         }
+
+        public getHotests(postRequest: PostRequest): Promise<PostModel[]> {
+            return new Promise<PostModel[]>((resolve, reject) => {
+                this.postCollection.findWithLimit({
+                    position: {
+                        $nearSphere: {
+                            $geometry: {
+                                type: "Point",
+                                coordinates: [Number(postRequest.longitude), Number(postRequest.latitude)]
+                            },
+                            $maxDistance: this.maxDistance
+                        }
+                    }
+                }).then(function(posts: PostModel[]) {
+                    let postsScore: any[] = []
+                    for (let post of posts) {
+                        let score = 0;
+                        let time = Math.round((Date.now() - post.timestamp) / (1000 * 60));
+                        for (let i = 0; i < 60 && time - i >= 0; ++i) {
+                            let key = post._id + "-" + String(time - i);
+                            try {
+                                let up: any = RedisController.getInstance().get("upvote" + key);
+                                let down: any = RedisController.getInstance().get("downvote" + key);
+                                score += (up + down);
+                            } catch (err) {
+                                reject(err);
+                            }
+                        }
+                        postsScore.push({post: post, score: score});
+                    }
+                    postsScore.sort(function(postScore1, postScore2) {
+                        if (postScore1.score > postScore2.score) {
+                            return 1;
+                        }
+                        if (postScore1.score < postScore2.score) {
+                            return -1;
+                        }
+                        return 0;
+                    });
+                    resolve(posts);
+                }).catch(function(err) {
+                    reject(err);
+                });
+            });
+        }
     }
 }
 

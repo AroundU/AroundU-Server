@@ -26,8 +26,9 @@ module Route {
             this.router.post("/", this.create);
             this.router.post("/:id/comment", this.createComment);
             this.router.post("/:id/vote", this.vote);
-            this.router.get("/newest/:longitude/:latitude/:pageNumber/:pageSize", this.getNewests);
-            this.router.get("/nearest/:longitude/:latitude/:pageNumber/:pageSize", this.getNearests);
+            this.router.get("/new/:longitude/:latitude/:pageNumber/:pageSize", this.getNewests);
+            this.router.get("/near/:longitude/:latitude/:pageNumber/:pageSize", this.getNearests);
+            this.router.get("/hot/:longitude/:latitude/:pageNumber/:pageSize", this.getHotests);
         }
 
         private async create(req: express.Request, res: express.Response) {
@@ -176,6 +177,31 @@ module Route {
                 res.json({success: false, msg: "Please enter all required information."});
             } else {
                 PostController.getInstance().getNearests({
+                    pageNumber: req.params["pageNumber"],
+                    pageSize: req.params["pageSize"],
+                    latitude: req.params["latitude"],
+                    longitude: req.params["longitude"]
+                }).then(function(posts: PostModel[]) {
+                    let feedResponses: FeedResponse[] = [];
+                    for (let post of posts) {
+                        feedResponses.push({
+                            post: post,
+                            upvoted: (req.user.upvoted.indexOf(post._id, 0) > -1)
+                        });
+                    }
+                    res.json({success: true, posts: feedResponses});
+                }).catch(function(err) {
+                    res.json({success: false, err: err});
+                });
+            }
+        }
+
+        private getHotests(req: express.Request, res: express.Response) {
+            if (!req.params["pageNumber"] || !req.params["pageSize"] || !req.params["latitude"]
+                || !req.params["longitude"]) {
+                res.json({success: false, msg: "Please enter all required information."});
+            } else {
+                PostController.getInstance().getHotests({
                     pageNumber: req.params["pageNumber"],
                     pageSize: req.params["pageSize"],
                     latitude: req.params["latitude"],
