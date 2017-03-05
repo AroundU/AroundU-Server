@@ -45,6 +45,10 @@ module Route {
         }
 
         private logout(req: express.Request, res: express.Response) {
+            if (!req.isAuthenticated()) {
+                res.status(HttpStatus.Unauthorized).json({ success: false });
+                return;
+            }
             req.session.destroy((err) => {
                 if (err) {
                     res.status(HttpStatus.Internal_Server_Error).json({

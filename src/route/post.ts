@@ -131,6 +131,10 @@ module Route {
         }
 
         private vote(req: express.Request, res: express.Response) {
+            if (!req.isAuthenticated()) {
+                res.status(HttpStatus.Unauthorized).json({ success: false });
+                return;
+            }
             if (!req.params["id"] || !req.body["action"]) {
                 res.status(HttpStatus.Bad_Request).json({ success: false, msg: "Please enter an id" });
             } else {
@@ -149,6 +153,10 @@ module Route {
         }
 
         private getNewests(req: express.Request, res: express.Response) {
+            if (!req.isAuthenticated()) {
+                res.status(HttpStatus.Unauthorized).json({ success: false });
+                return;
+            }
             if (!req.params["pageNumber"] || !req.params["pageSize"] || !req.params["latitude"]
                 || !req.params["longitude"]) {
                 res.json({success: false, msg: "Please enter all required information."});
@@ -174,6 +182,10 @@ module Route {
         }
 
         private getNearests(req: express.Request, res: express.Response) {
+            if (!req.isAuthenticated()) {
+                res.status(HttpStatus.Unauthorized).json({ success: false });
+                return;
+            }
             if (!req.params["pageNumber"] || !req.params["pageSize"] || !req.params["latitude"]
                 || !req.params["longitude"]) {
                 res.json({success: false, msg: "Please enter all required information."});
@@ -199,6 +211,10 @@ module Route {
         }
 
         private getHotests(req: express.Request, res: express.Response) {
+            if (!req.isAuthenticated()) {
+                res.status(HttpStatus.Unauthorized).json({ success: false });
+                return;
+            }
             if (!req.params["pageNumber"] || !req.params["pageSize"] || !req.params["latitude"]
                 || !req.params["longitude"]) {
                 res.json({success: false, msg: "Please enter all required information."});

@@ -40,6 +40,10 @@ module Route {
         }
 
         private getUpvotes(req: express.Request, res: express.Response) {
+            if (!req.isAuthenticated()) {
+                res.status(HttpStatus.Unauthorized).json({ success: false });
+                return;
+            }
             PostController.getInstance().getUpvotes(req.user).then(function(posts: PostModel[]) {
                 res.json({success: true, posts: posts});
             }).catch(function(err) {
@@ -48,6 +52,10 @@ module Route {
         }
 
         private getPosts(req: express.Request, res: express.Response) {
+            if (!req.isAuthenticated()) {
+                res.status(HttpStatus.Unauthorized).json({ success: false });
+                return;
+            }
             PostController.getInstance().getPosts(req.user._id).then(function(posts: PostModel[]) {
                 res.json({success: true, posts: posts});
             }).catch(function(err) {
