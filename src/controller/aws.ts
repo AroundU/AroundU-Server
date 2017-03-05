@@ -19,7 +19,7 @@ module Controller {
         private constructor() {
             this.aws = new S3({
                 credentials: new Credentials(process.env.AWS_KEY, process.env.AWS_SECRET),
-                region: 'ca-central-1'
+                region: 'us-east-2'
             });
             this.bucket = process.env.AWS_BUCKET;
         }

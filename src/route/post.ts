@@ -73,6 +73,7 @@ module Route {
                     res.json({ success: true, post: post, msg: "Successfully created post" });
                 } catch (err) {
                     res.status(HttpStatus.Internal_Server_Error).json({ success: false, err: err, msg: null });
+                    res.end();
                 }
             }
         }
