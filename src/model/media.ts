@@ -7,6 +7,7 @@ export interface MediaModel extends mongoose.Document {
     name: string;
     size: number;
     url: string;
+    thumbnail: string;
 }
 
 let schema = new Schema({
@@ -25,6 +26,10 @@ let schema = new Schema({
     url: {
        type: String,
        required: true
+    },
+    thumbnail: {
+        type: String,
+        required: true
     }
 });
 

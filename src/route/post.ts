@@ -50,7 +50,8 @@ module Route {
                             mimetype: req.file.mimetype,
                             name: req.file.filename,
                             size: req.file.size,
-                            url: url
+                            url: url + "image-" + req.file.filename + ".png",
+                            thumbnail: url + "resized-" + req.file.filename + ".png"
                         });
                     } catch (err) {
                         res.status(HttpStatus.Internal_Server_Error).json({ success: false, err: err, msg: null });

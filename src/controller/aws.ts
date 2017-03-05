@@ -37,7 +37,7 @@ module Controller {
                     if (err) {
                         reject(err);
                     } else {
-                        resolve("https://" + this.bucket + ".s3.amazonaws.com/" + key);
+                        resolve("https://" + this.bucket + ".s3.amazonaws.com/");
                     }
                 });
             });
