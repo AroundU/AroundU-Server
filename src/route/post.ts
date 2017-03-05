@@ -19,7 +19,7 @@ module Route {
 
             this.router.post("/", this.create);
             //this.router.post("/:id/upvote", this.upvote);
-            this.router.post("/comment/:id", this.createComment);
+            this.router.post("/:id/comment", this.createComment);
         }
 
         private async create(req: express.Request, res: express.Response) {
