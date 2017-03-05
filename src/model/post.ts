@@ -1,16 +1,19 @@
 import * as mongoose from 'mongoose';
 import { CollectionBase } from "./database";
 import { MediaModel } from '../model/media';
-import { UserModel } from '../model/user';
 export let Schema = mongoose.Schema;
+
+export interface Position {
+    type: string;
+    coordinates: number[];
+}
 
 export interface PostModel extends mongoose.Document {
     user?: string;
     parent?: string;
     media?: MediaModel;
     description?: string;
-    latitude: number;
-    longitude: number;
+    position?: Position;
     timestamp: Date;
     upvotes: number;
     downvotes: number;
@@ -31,13 +34,15 @@ let schema = new Schema({
         type: Schema.Types.ObjectId,
         ref: 'media'
     },
-    latitude: {
-        type: Number,
-        required: true
-    },
-    longitude: {
-        type: Number,
-        required: true
+    position: {
+        type: {
+            type: String,
+            default: "Point"
+        },
+        coordinates: {
+            type: [Number]
+        },
+        required: false
     },
     timestamp: {
         type: Date,
