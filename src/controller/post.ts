@@ -19,8 +19,15 @@ module Controller {
         }
 
         public create(post: PostModel) {
-            // upload medias to aws.
             return this.postCollection.create(post);
+        }
+
+        public getById(_id: string) {
+            return this.postCollection.findById(_id);
+        }
+
+        public update(post: PostModel) {
+            return this.postCollection.update(post._id, post);
         }
     }
 }

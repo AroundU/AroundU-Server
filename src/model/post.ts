@@ -4,7 +4,7 @@ import { MediaModel } from '../model/media';
 export let Schema = mongoose.Schema;
 
 export interface PostModel extends mongoose.Document {
-    _id?: number;
+    _id?: string;
     parent?: string;
     media?: MediaModel;
     description?: string;
@@ -37,6 +37,10 @@ let schema = new Schema({
         type: Date,
         required: true
     },
+    comments: {
+        type: [],
+        required: false
+    }
 });
 
 export let postSchema = mongoose.model<PostModel>("post", schema, "posts", true);
