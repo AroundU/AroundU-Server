@@ -3,7 +3,6 @@ import { CollectionBase } from "./database";
 export let Schema = mongoose.Schema;
 
 export interface MediaModel extends mongoose.Document {
-    _id?: string;
     mimetype: string;
     name: string;
     size: number;

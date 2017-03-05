@@ -40,7 +40,7 @@ export interface IWrite<T> {
 
 export class CollectionBase<T extends mongoose.Document> implements IRead<T>, IWrite<T> {
 
-    private _model: mongoose.Model<mongoose.Document>;
+    protected _model: mongoose.Model<mongoose.Document>;
 
     constructor(schemaModel: mongoose.Model<mongoose.Document>) {
         this._model = schemaModel;
@@ -146,7 +146,7 @@ export class CollectionBase<T extends mongoose.Document> implements IRead<T>, IW
                 } else {
                     resolve(res);
                 }
-            }).sort(sort).skip(skip).limit(limit);
+            }).sort(sort).skip(skip).limit(limit).populate('user').populate('media').populate('comments');
         });
     }
 

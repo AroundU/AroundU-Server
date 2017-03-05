@@ -9,7 +9,7 @@ export interface Position {
 }
 
 export interface PostModel extends mongoose.Document {
-    user: string;
+    user?: string;
     parent?: string;
     media?: MediaModel;
     description?: string;
@@ -26,15 +26,22 @@ let schema = new Schema({
         required: false
     },
     user: {
-        type: String,
-        required: true
+        type: Schema.Types.ObjectId,
+        required: true,
+        ref: 'user'
     },
     media: {
-        type: Object,
-        required: false
+        type: Schema.Types.ObjectId,
+        ref: 'media'
     },
     position: {
-        type: Object,
+        type: {
+            type: String,
+            default: "Point"
+        },
+        coordinates: {
+            type: [Number]
+        },
         required: false
     },
     timestamp: {
@@ -49,18 +56,26 @@ let schema = new Schema({
         type: Number,
         required: true
     },
-    comments: {
-        type: [],
-        required: false
-    }
+    comments: [{ type: Schema.Types.ObjectId, ref: 'post' }]
 });
-
-schema.index({location: "2dsphere"});
 
 export let postSchema = mongoose.model<PostModel>("post", schema, "posts", true);
 
 export class PostCollection extends CollectionBase<PostModel> {
     constructor() {
         super(postSchema);
+    }
+
+    public findByIdAndPopulate(_id) {
+        return new Promise<PostModel>((resolve, reject) => {
+            this._model.findById({ _id: _id }, (err: any, res: PostModel) => {
+
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(res);
+                }
+            }).populate('user').populate('media').populate('comments');
+        });
     }
 }

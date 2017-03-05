@@ -26,7 +26,7 @@ module Route {
             } else if (!req.body["password"]) {
                 res.status(HttpStatus.Bad_Request).json({success: false, msg: "Please enter a password."});
             } else {
-                let userData: UserModel = {
+                let userData: UserModel = <UserModel>{
                     username: req.body["username"],
                     password: req.body["password"]
                 };
