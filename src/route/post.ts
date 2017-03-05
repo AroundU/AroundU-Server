@@ -18,7 +18,7 @@ module Route {
             this.postCollection = new PostCollection();
 
             this.router.post("/", this.create);
-            this.router.post("/comment/:id", this.createComment);
+            this.router.post("/:id/comment", this.createComment);
             this.router.post("/:id/vote", this.vote);
         }
 
