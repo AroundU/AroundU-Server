@@ -1,6 +1,8 @@
 import * as express from 'express';
 import { UserController } from '../controller/user';
+import { PostController } from '../controller/post';
 import { UserCollection, UserModel } from '../model/user';
+import { PostModel } from '../model/post';
 import { HttpStatus } from '../model/http_status';
 
 module Route {
@@ -15,6 +17,7 @@ module Route {
             this.userCollection = new UserCollection();
 
             this.router.post("/register", this.register);
+            this.router.get("/upvotes", this.getUpvotes);
         }
 
         private register(req: express.Request, res: express.Response) {
@@ -33,6 +36,14 @@ module Route {
                     res.json({success: false, err: err, msg: "Failed to register user."});
                 });
             }
+        }
+
+        private getUpvotes(req: express.Request, res: express.Response) {
+            PostController.getInstance().getUpvotes(req.user).then(function(posts: PostModel[]) {
+                res.json({success: true, posts: posts});
+            }).catch(function(err) {
+                res.json({success: false, err: err});
+            });
         }
     }
 }

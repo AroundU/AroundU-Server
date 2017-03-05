@@ -16,6 +16,13 @@ module Controller {
         post: PostModel;
     }
 
+    interface PostRequest {
+        pageNumber: number;
+        pageSize: number;
+        latitude: number;
+        longitude: number;
+    }
+
     export class PostController {
 
         private static instance: PostController;
@@ -123,6 +130,21 @@ module Controller {
 
         public update(post: PostModel) {
             return this.postCollection.update(post._id, post);
+        }
+
+        public getUpvotes(user: UserModel): Promise<PostModel[]> {
+            return new Promise<PostModel[]>(async (resolve, reject) => {
+                let posts: PostModel[] = [];
+                for (let postId of user.upvoted) {
+                    try {
+                        let post: PostModel = await this.postCollection.findById(postId);
+                        posts.push(post);
+                    } catch (err) {
+                        reject(err);
+                    }
+                }
+                resolve(posts);
+            });
         }
     }
 }
