@@ -35,12 +35,11 @@ module Controller {
         }
 
         public create(post: PostModel) {
-            // upload medias to aws.
             return this.postCollection.create(post);
         }
 
         public vote(id: string, action: PostAction, user: UserModel): Promise<PostVotePromise> {
-            return new Promise<PostVotePromise>(async (resolve, reject) => {
+            return new Promise<PostVotePromise>(async(resolve, reject) => {
                 try {
                     let post: PostModel = await this.postCollection.findById(id);
                     switch (Number(action)) {
@@ -106,6 +105,14 @@ module Controller {
                     reject(err);
                 }
             });
+        }
+
+        public getById(_id: string) {
+            return this.postCollection.findById(_id);
+        }
+
+        public update(post: PostModel) {
+            return this.postCollection.update(post._id, post);
         }
     }
 }
